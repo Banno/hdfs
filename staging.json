@@ -1,0 +1,13 @@
+{
+  "id": "hdfs",
+  "container": {
+    "docker": {
+      "image": "registry.banno-internal.com/hdfs:0.0.2-banno1"
+    },
+    "type": "DOCKER",
+    "volumes": []
+  },
+  "cpus": 0.2,
+  "mem": 32.0,
+  "instances": 1
+}

@@ -1,0 +1,153 @@
+dns:
+  image: registry.banno-internal.com/big-dns:latest
+  ports:
+    - "53:53"
+    - "53:53/udp"
+
+zookeeper:
+  image: jplock/zookeeper:3.4.6
+  ports:
+    - "2181:2181"
+
+zookeepercli:
+  image: jplock/zookeeper:3.4.6
+  links: [zookeeper]
+  entrypoint: /bin/bash
+  command: -c "/opt/zookeeper/bin/zkCli.sh -server $ZOOKEEPER_PORT_2181_TCP_ADDR:$ZOOKEEPER_PORT_2181_TCP_PORT"
+
+mesosmaster:
+  image: registry.banno-internal.com/mesos-master:0.21.0
+  dns: 172.17.42.1
+  hostname: mesosmaster.dev.banno.com
+  ports:
+    - "5050:5050"
+  environment:
+    MESOS_ZK: zk://dev.banno.com:2181/mesos
+    MESOS_LOG_DIR: /var/log
+    MESOS_WORK_DIR: /mesos
+    MESOS_QUORUM: 1
+  links:
+    - dns
+    - zookeeper
+
+mesosslave1:
+  #privileged: true
+  image: wrapdocker-mesos
+  dns: 172.17.42.1
+  hostname: mesosslave1.dev.banno.com
+  ports:
+    - "5155:5155"
+  environment:
+    MESOS_CONTAINERIZERS: mesos
+    MESOS_LOG_DIR: /var/log
+    MESOS_MASTER: zk://dev.banno.com:2181/mesos
+    MESOS_WORK_DIR: /mesos
+    MESOS_PORT: "5155"
+    MESOS_HOSTNAME: mesosslave1.dev.banno.com
+  links:
+    - dns
+    - zookeeper
+
+mesosslave2:
+  #privileged: true
+  image: wrapdocker-mesos
+  dns: 172.17.42.1
+  hostname: mesosslave2.dev.banno.com
+  ports:
+    - "5151:5151"
+  environment:
+    MESOS_CONTAINERIZERS: mesos
+    MESOS_LOG_DIR: /var/log
+    MESOS_MASTER: zk://dev.banno.com:2181/mesos
+    MESOS_WORK_DIR: /mesos
+    MESOS_PORT: "5151"
+    MESOS_HOSTNAME: mesosslave2.dev.banno.com
+  links:
+    - dns
+    - zookeeper
+
+mesosslave3:
+  #privileged: true
+  image: wrapdocker-mesos
+  dns: 172.17.42.1
+  hostname: mesosslave3.dev.banno.com
+  ports:
+    - "5152:5152"
+  environment:
+    MESOS_CONTAINERIZERS: mesos
+    MESOS_LOG_DIR: /var/log
+    MESOS_MASTER: zk://dev.banno.com:2181/mesos
+    MESOS_WORK_DIR: /mesos
+    MESOS_PORT: "5152"
+    MESOS_HOSTNAME: mesosslave3.dev.banno.com
+  links:
+    - dns
+    - zookeeper
+
+mesosslave4:
+  #privileged: true
+  image: wrapdocker-mesos
+  dns: 172.17.42.1
+  hostname: mesosslave4.dev.banno.com
+  ports:
+    - "5153:5153"
+  environment:
+    MESOS_CONTAINERIZERS: mesos
+    MESOS_LOG_DIR: /var/log
+    MESOS_MASTER: zk://dev.banno.com:2181/mesos
+    MESOS_WORK_DIR: /mesos
+    MESOS_PORT: "5153"
+    MESOS_HOSTNAME: mesosslave4.dev.banno.com
+  links:
+    - dns
+    - zookeeper
+
+mesosslave5:
+  #privileged: true
+  image: wrapdocker-mesos
+  dns: 172.17.42.1
+  hostname: mesosslave5.dev.banno.com
+  ports:
+    - "5154:5154"
+  environment:
+    MESOS_CONTAINERIZERS: mesos
+    MESOS_LOG_DIR: /var/log
+    MESOS_MASTER: zk://dev.banno.com:2181/mesos
+    MESOS_WORK_DIR: /mesos
+    MESOS_PORT: "5154"
+    MESOS_HOSTNAME: mesosslave5.dev.banno.com
+  links:
+    - dns
+    - zookeeper
+
+mesosslave6:
+  #privileged: true
+  image: wrapdocker-mesos
+  dns: 172.17.42.1
+  hostname: mesosslave6.dev.banno.com
+  ports:
+    - "5156:5156"
+  environment:
+    MESOS_CONTAINERIZERS: mesos
+    MESOS_LOG_DIR: /var/log
+    MESOS_MASTER: zk://dev.banno.com:2181/mesos
+    MESOS_WORK_DIR: /mesos
+    MESOS_PORT: "5156"
+    MESOS_HOSTNAME: mesosslave6.dev.banno.com
+  links:
+    - dns
+    - zookeeper
+
+hdfs:
+  image: registry.banno-internal.com/hdfs:0.0.2-banno1
+  dns: 172.17.42.1
+  ports:
+    - "50070:50070"
+    - "50071:50071"
+  links:
+    - mesosmaster
+    - mesosslave1
+    - mesosslave2
+    - mesosslave3
+    - mesosslave4
+    - mesosslave5
