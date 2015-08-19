@@ -639,7 +639,7 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
       log.info(String.format("Offer %s has resource role %s", offer.getId().getValue(), resource.getRole()));
     }
     for (Resource resource : resources) {
-      if (resource.getRole() != role) {
+      if (resource.getRole().equals(role)) {
         log.info(String.format("Offer %s has resource role %s that did not match expected role %s", offer.getId().getValue(), resource.getRole(), role));
         return false;
       }
