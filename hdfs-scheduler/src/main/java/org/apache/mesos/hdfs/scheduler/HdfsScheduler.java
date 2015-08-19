@@ -448,6 +448,11 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
       return false;
     }
 
+    if (!offerMatchesRole(offer, "*")) {
+      log.info("Will only spawn journal nodes on offers with the star role");
+      return false;
+    }
+
     boolean launch = false;
     List<String> deadJournalNodes = persistenceStore.getDeadJournalNodes();
 
@@ -486,6 +491,11 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
       return false;
     }
 
+    if (!offerMatchesRole(offer, "*")) {
+      log.info("Will only spawn name nodes on offers with the star role");
+      return false;
+    }
+
     boolean launch = false;
     List<String> deadNameNodes = persistenceStore.getDeadNameNodes();
 
@@ -520,6 +530,11 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
     if (offerNotEnoughResources(offer, hdfsFrameworkConfig.getDataNodeCpus(),
       hdfsFrameworkConfig.getDataNodeHeapSize())) {
       log.info("Offer does not have enough resources");
+      return false;
+    }
+
+    if (!offerMatchesRole(offer, hdfsFrameworkConfig.getHdfsRole())) {
+      log.info("Will only spawn data nodes on offers with our explicit role");
       return false;
     }
 
@@ -616,6 +631,20 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
       }
     }
     return false;
+  }
+
+  private boolean offerMatchesRole(Offer offer, String role) {
+    List<Resource> resources = offer.getResourcesList();
+    for (Resource resource : resources) {
+      log.info(String.format("Offer %s has resource role %s", offer.getId().getValue(), resource.getRole()));
+    }
+    for (Resource resource : resources) {
+      if (resource.getRole() != role) {
+        log.info(String.format("Offer %s has resource role %s that did not match expected role %s", offer.getId().getValue(), resource.getRole(), role));
+        return false;
+      }
+    }
+    return true;
   }
 
   private void reconcileTasks(SchedulerDriver driver) {
