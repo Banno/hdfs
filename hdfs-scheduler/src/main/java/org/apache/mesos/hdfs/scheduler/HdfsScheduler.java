@@ -199,15 +199,6 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
   public void resourceOffers(SchedulerDriver driver, List<Offer> offers) {
     log.info(String.format("Received %d offers", offers.size()));
 
-	  // debugging information
-		for (Offer o : offers) {
-			String hostname = o.getHostname();
- 			double cpus = o.getResources(0).getScalar().getValue();
-			double mem = o.getResources(1).getScalar().getValue();
-
-   		log.info("--> { cpus: " + cpus + ", mem: " + mem + ", host: " + hostname + "}");
-    }
-		
     // TODO (elingg) within each phase, accept offers based on the number of nodes you need
     boolean acceptedOffer = false;
     boolean journalNodesResolvable = false;
@@ -518,13 +509,22 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
   }
 
   private boolean tryToLaunchNameNode(SchedulerDriver driver, Offer offer) {
-		double cpuVal = hdfsFrameworkConfig.getNameNodeCpus() + hdfsFrameworkConfig.getZkfcCpus();
-		int memVal = hdfsFrameworkConfig.getNameNodeHeapSize() + hdfsFrameworkConfig.getZkfcHeapSize();
+    // debugging information
+	  String hostname = offer.getHostname();
+		double cpuOffer = offer.getResources(0).getScalar().getValue();
+  	double memOffer    = offer.getResources(1).getScalar().getValue();
 
-		if (offerNotEnoughResources(offer, cpuVal, memVal)) {
+
+		double cpuRequest = hdfsFrameworkConfig.getNameNodeCpus()     + hdfsFrameworkConfig.getZkfcCpus();
+		int memRequest    = hdfsFrameworkConfig.getNameNodeHeapSize() + hdfsFrameworkConfig.getZkfcHeapSize();
+
+		if (offerNotEnoughResources(offer, cpuRequest, memRequest)) {
 			log.info("Offer does not have enough resources");
 
-			log.info("--> { requestedCpu: " + cpuVal + ", requestedMem: " + memVal + " }");
+
+   		log.info("--> { cpus: " + cpuOffer + ", mem: " + memOffer + ", host: " + hostname + "}");
+      			
+			log.info("--> { requestedCpu: " + cpuRequest + ", requestedMem: " + memRequest + " }");
 			
       return false;
     }
