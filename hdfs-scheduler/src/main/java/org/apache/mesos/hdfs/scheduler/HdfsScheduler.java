@@ -205,7 +205,7 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
  			double cpus = o.getResources(0).getScalar().getValue();
 			double mem = o.getResources(1).getScalar().getValue();
 
-   		log.info("--> {\tcpus: " + cpus + ",\tmem: " + mem + ",\thost: " + hostname + "}");
+   		log.info("--> { cpus: " + cpus + ", mem: " + mem + ", host: " + hostname + "}");
     }
 		
     // TODO (elingg) within each phase, accept offers based on the number of nodes you need
@@ -518,11 +518,14 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
   }
 
   private boolean tryToLaunchNameNode(SchedulerDriver driver, Offer offer) {
-    if (offerNotEnoughResources(offer,
-      (hdfsFrameworkConfig.getNameNodeCpus() + hdfsFrameworkConfig.getZkfcCpus()),
-      (hdfsFrameworkConfig.getNameNodeHeapSize() + hdfsFrameworkConfig.getZkfcHeapSize()))) {
-      log.info("Offer does not have enough resources");
-			log.info("{ requestedCpu: " + hdfsFrameworkConfig.getNameNodeCpus() + hdfsFrameworkConfig.getZkfcCpus() + ", requestedMem: " + hdfsFrameworkConfig.getNameNodeHeapSize() + hdfsFrameworkConfig.getZkfcHeapSize() + " }");
+		double cpuVal = hdfsFrameworkConfig.getNameNodeCpus() + hdfsFrameworkConfig.getZkfcCpus();
+		int memVal = hdfsFrameworkConfig.getNameNodeHeapSize() + hdfsFrameworkConfig.getZkfcHeapSize();
+
+		if (offerNotEnoughResources(offer, cpuVal, memVal)) {
+			log.info("Offer does not have enough resources");
+
+			log.info("--> { requestedCpu: " + cpuVal + ", requestedMem: " + memVal + " }");
+			
       return false;
     }
 
