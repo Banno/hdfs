@@ -200,8 +200,8 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
     log.info(String.format("Received %d offers", offers.size()));
 
 		for (Offer o : offers) { 
-			log.info("Printing Offer...");
-			log.info(o);
+			log.info("Printing Offer's Hostname...");
+			log.info(o.getHostname());
     }
 		
     // TODO (elingg) within each phase, accept offers based on the number of nodes you need
