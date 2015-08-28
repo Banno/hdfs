@@ -199,6 +199,11 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
   public void resourceOffers(SchedulerDriver driver, List<Offer> offers) {
     log.info(String.format("Received %d offers", offers.size()));
 
+		for (Offer o : offers) { 
+			log.info("Printing Offer...");
+			log.info(o);
+    }
+		
     // TODO (elingg) within each phase, accept offers based on the number of nodes you need
     boolean acceptedOffer = false;
     boolean journalNodesResolvable = false;
