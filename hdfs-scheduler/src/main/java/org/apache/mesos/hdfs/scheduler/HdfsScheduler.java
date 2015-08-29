@@ -639,10 +639,12 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
   	double memOffer = offer.getResources(1).getScalar().getValue();
 
 
+		double cpuRequested = cpus + hdfsFrameworkConfig.getExecutorCpus();
+		double memRequested = (mem * hdfsFrameworkConfig.getJvmOverhead()) + (hdfsFrameworkConfig.getExecutorHeap() * hdfsFrameworkConfig.getJvmOverhead());
 		
 		log.info("------- offerNotEnoughResources() -----------");
 		log.info("--> { cpus: " + cpuOffer + ", mem: " + memOffer + ", host: " + hostname + "}");
-    log.info("--> { requestedCpu: " + cpus + ", requestedMem: " + mem + " }");
+    log.info("--> { requestedCpu: " + cpuRequested + ", requestedMem: " + memRequested + " }");
 		
 
 		for (Resource offerResource : offer.getResourcesList()) {
@@ -651,10 +653,7 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
 				log.info("------ return true, fail on cpu ----------");
         return true;
       }
-      if (offerResource.getName().equals("mem") &&
-        (mem * hdfsFrameworkConfig.getJvmOverhead())
-          + (hdfsFrameworkConfig.getExecutorHeap() * hdfsFrameworkConfig.getJvmOverhead())
-          > offerResource.getScalar().getValue()) {
+      if (offerResource.getName().equals("mem") && (mem * hdfsFrameworkConfig.getJvmOverhead()) + (hdfsFrameworkConfig.getExecutorHeap() * hdfsFrameworkConfig.getJvmOverhead()) > offerResource.getScalar().getValue()) {
 			  log.info("------ return true, fail on mem ----------");
         return true;
       }
