@@ -474,7 +474,6 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
     if (offerNotEnoughResources(offer, hdfsFrameworkConfig.getJournalNodeCpus(),
       hdfsFrameworkConfig.getJournalNodeHeapSize())) {
       log.info("Offer does not have enough resources");
-			log.info("{ requestedCpu: " + hdfsFrameworkConfig.getJournalNodeCpus() + ", requestedMem: " + hdfsFrameworkConfig.getJournalNodeHeapSize() + " }");
       return false;
     }
 
@@ -509,23 +508,11 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
   }
 
   private boolean tryToLaunchNameNode(SchedulerDriver driver, Offer offer) {
-    // debugging information
-	  String hostname = offer.getHostname();
-		double cpuOffer = offer.getResources(0).getScalar().getValue();
-  	double memOffer    = offer.getResources(1).getScalar().getValue();
-
-
 		double cpuRequest = hdfsFrameworkConfig.getNameNodeCpus()     + hdfsFrameworkConfig.getZkfcCpus();
 		int memRequest    = hdfsFrameworkConfig.getNameNodeHeapSize() + hdfsFrameworkConfig.getZkfcHeapSize();
 
 		if (offerNotEnoughResources(offer, cpuRequest, memRequest)) {
 			log.info("Offer does not have enough resources");
-
-
-   		log.info("--> { cpus: " + cpuOffer + ", mem: " + memOffer + ", host: " + hostname + "}");
-      			
-			log.info("--> { requestedCpu: " + cpuRequest + ", requestedMem: " + memRequest + " }");
-			
       return false;
     }
 
@@ -646,18 +633,33 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
   }
 
   private boolean offerNotEnoughResources(Offer offer, double cpus, int mem) {
-    for (Resource offerResource : offer.getResourcesList()) {
+
+	  String hostname = offer.getHostname();
+		double cpuOffer = offer.getResources(0).getScalar().getValue();
+  	double memOffer = offer.getResources(1).getScalar().getValue();
+
+
+		
+		log.info("------- offerNotEnoughResources() -----------");
+		log.info("--> { cpus: " + cpuOffer + ", mem: " + memOffer + ", host: " + hostname + "}");
+    log.info("--> { requestedCpu: " + cpus + ", requestedMem: " + mem + " }");
+		
+
+		for (Resource offerResource : offer.getResourcesList()) {
       if (offerResource.getName().equals("cpus") &&
         cpus + hdfsFrameworkConfig.getExecutorCpus() > offerResource.getScalar().getValue()) {
+				log.info("------ return true, fail on cpu ----------");
         return true;
       }
       if (offerResource.getName().equals("mem") &&
         (mem * hdfsFrameworkConfig.getJvmOverhead())
           + (hdfsFrameworkConfig.getExecutorHeap() * hdfsFrameworkConfig.getJvmOverhead())
           > offerResource.getScalar().getValue()) {
+			  log.info("------ return true, fail on mem ----------");
         return true;
       }
     }
+		log.info("------- offerNotEnoughResources() :: return false -----------");
     return false;
   }
 
