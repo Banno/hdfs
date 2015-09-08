@@ -642,7 +642,7 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
 		double cpuRequested = cpus + hdfsFrameworkConfig.getExecutorCpus();
 		double memRequested = (mem * hdfsFrameworkConfig.getJvmOverhead()) + (hdfsFrameworkConfig.getExecutorHeap() * hdfsFrameworkConfig.getJvmOverhead());
 		
-		log.info("------- offerNotEnoughResources() -----------");
+		log.info("\n------- offerNotEnoughResources() -----------");
 		log.info("--> { cpus: " + cpuOffer + ", mem: " + memOffer + ", host: " + hostname + "}");
     log.info("--> { requestedCpu: " + cpuRequested + ", requestedMem: " + memRequested + " }");
 		
@@ -657,7 +657,7 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
         return true;
       }
     }
-		log.info("------- offerNotEnoughResources() :: return false -----------\n");
+		log.info("------- offerNotEnoughResources() :: return false -----------");
     return false;
   }
 
