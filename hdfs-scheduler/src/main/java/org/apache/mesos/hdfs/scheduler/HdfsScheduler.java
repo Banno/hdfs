@@ -648,17 +648,16 @@ public class HdfsScheduler implements org.apache.mesos.Scheduler, Runnable {
 		
 
 		for (Resource offerResource : offer.getResourcesList()) {
-      if (offerResource.getName().equals("cpus") &&
-        cpus + hdfsFrameworkConfig.getExecutorCpus() > offerResource.getScalar().getValue()) {
+      if (offerResource.getName().equals("cpus") && cpuRequested > offerResource.getScalar().getValue()) {
 				log.info("------ return true, fail on cpu ----------");
         return true;
       }
-      if (offerResource.getName().equals("mem") && (mem * hdfsFrameworkConfig.getJvmOverhead()) + (hdfsFrameworkConfig.getExecutorHeap() * hdfsFrameworkConfig.getJvmOverhead()) > offerResource.getScalar().getValue()) {
+      if (offerResource.getName().equals("mem") && memRequested > offerResource.getScalar().getValue()) {
 			  log.info("------ return true, fail on mem ----------");
         return true;
       }
     }
-		log.info("------- offerNotEnoughResources() :: return false -----------");
+		log.info("------- offerNotEnoughResources() :: return false -----------\n");
     return false;
   }
 
